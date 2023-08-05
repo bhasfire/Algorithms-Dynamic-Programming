@@ -5,6 +5,7 @@
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 
 /**
@@ -74,7 +75,81 @@ public class Program3 extends AbstractProgram3 {
      */
     @Override
     public TownPlan findOptimalPoliceStationPositions(TownPlan town) {
-        /* TODO implement this function */
+        int n = town.getHouseCount();
+        int k = town.getStationCount();
+        ArrayList<Integer> housePositions = town.getHousePositions();
+
+        // Initialize the R and S arrays
+        int[][] R = new int[n + 1][k + 1];
+        int[][] S = new int[n + 1][k + 1];
+        for (int[] row : R)
+            Arrays.fill(row, Integer.MAX_VALUE);
+        R[0][0] = 0;
+
+        // Dynamic programming solution
+        for (int t = 1; t <= n; t++) {
+            for (int j = 1; j <= Math.min(t, k); j++) {
+                for (int i = j - 1; i < t; i++) {
+                    int maxDist = 0;
+                    for (int u = i; u < t; u++) {
+                        maxDist = Math.max(maxDist, Math.abs(housePositions.get(u) - housePositions.get(t - 1)));
+                    }
+                    if (R[t][j] > Math.max(R[i][j - 1], maxDist)) {
+                        R[t][j] = Math.max(R[i][j - 1], maxDist);
+                        S[t][j] = t - 1;
+                    }
+                }
+            }
+        }
+
+        ArrayList<Integer> policeStationPositions = new ArrayList<>();
+        int t = n;
+        for (int j = k; j >= 1; j--) {
+            int rightHouseIndex = t - 1;
+            int rightHousePosition = housePositions.get(rightHouseIndex);
+            int leftHouseIndex = j > 1 ? S[S[t][j]][j - 1] + 1 : 0; // Correcting the left house index
+            int leftHousePosition = housePositions.get(leftHouseIndex);
+            int policeStationPosition = (leftHousePosition + rightHousePosition) / 2;
+
+            // Debugging print statements
+            System.out.println("Station " + (k - j) + ":");
+            System.out.println("  Left house index: " + leftHouseIndex + ", position: " + leftHousePosition);
+            System.out.println("  Right house index: " + rightHouseIndex + ", position: " + rightHousePosition);
+            System.out.println("  Calculated station position: " + policeStationPosition);
+
+            policeStationPositions.add(0, policeStationPosition);
+            t = S[t][j];
+        }
+
+        // Set the optimal police station positions
+        town.setPoliceStationPositions(policeStationPositions);
+
         return town;
     }
+
+
+    public boolean verifySolution(TownPlan town) {
+        int optimalResponseTime = town.getResponseTime();
+        ArrayList<Integer> policeStationPositions = town.getPoliceStationPositions();
+        ArrayList<Integer> housePositions = town.getHousePositions();
+
+        // For each house, find the minimum distance to a station
+        ArrayList<Integer> minDistances = new ArrayList<>();
+        for (int housePosition : housePositions) {
+            int minDist = Integer.MAX_VALUE;
+            for (int stationPosition : policeStationPositions) {
+                minDist = Math.min(minDist, Math.abs(housePosition - stationPosition));
+            }
+            minDistances.add(minDist);
+        }
+
+        // The worst-case response time is the maximum of these minimum distances
+        int worstCaseResponseTime = Collections.max(minDistances);
+
+        return worstCaseResponseTime == optimalResponseTime;
+    }
+
+
+
+
 }

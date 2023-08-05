@@ -79,7 +79,7 @@ public class Driver {
 
         return position_houses;
     }
-
+/* 
     public static void testRun(TownPlan problem) {
         Program3 program = new Program3();
 
@@ -97,4 +97,30 @@ public class Driver {
             System.out.println(posPoliceTownPlan);
         }
     }
+    */
+    public static void testRun(TownPlan problem) {
+        Program3 program = new Program3();
+
+        if (testResponseTime) {
+            problem.setResponseTime(null);
+            problem.setPoliceStationPositions(null);
+            TownPlan responseTownPlan = program.findOptimalResponseTime(problem);
+            System.out.println(responseTownPlan);
+        }
+
+        if (testPoliceStationPositions) {
+            // Don't set responseTime to null here
+            problem.setPoliceStationPositions(null);
+            TownPlan posPoliceTownPlan = program.findOptimalPoliceStationPositions(problem);
+            System.out.println(posPoliceTownPlan);
+        }
+
+        // Verify the solution after both methods have been called
+        if (testResponseTime && testPoliceStationPositions) {
+            boolean isSolutionValid = program.verifySolution(problem);
+            System.out.println("Solution is valid: " + isSolutionValid);
+        }   
+}
+
+
 }
