@@ -96,27 +96,19 @@ public class Program3 extends AbstractProgram3 {
                     }
                     if (R[t][j] > Math.max(R[i][j - 1], maxDist)) {
                         R[t][j] = Math.max(R[i][j - 1], maxDist);
-                        S[t][j] = t - 1;
+                        S[t][j] = i; // Record the leftmost house served by this station
                     }
                 }
             }
         }
 
+        // Backtrack to find the positions of the police stations
         ArrayList<Integer> policeStationPositions = new ArrayList<>();
         int t = n;
         for (int j = k; j >= 1; j--) {
+            int leftHouseIndex = S[t][j];
             int rightHouseIndex = t - 1;
-            int rightHousePosition = housePositions.get(rightHouseIndex);
-            int leftHouseIndex = j > 1 ? S[S[t][j]][j - 1] + 1 : 0; // Correcting the left house index
-            int leftHousePosition = housePositions.get(leftHouseIndex);
-            int policeStationPosition = (leftHousePosition + rightHousePosition) / 2;
-
-            // Debugging print statements
-            System.out.println("Station " + (k - j) + ":");
-            System.out.println("  Left house index: " + leftHouseIndex + ", position: " + leftHousePosition);
-            System.out.println("  Right house index: " + rightHouseIndex + ", position: " + rightHousePosition);
-            System.out.println("  Calculated station position: " + policeStationPosition);
-
+            int policeStationPosition = (housePositions.get(leftHouseIndex) + housePositions.get(rightHouseIndex)) / 2;
             policeStationPositions.add(0, policeStationPosition);
             t = S[t][j];
         }
@@ -126,7 +118,6 @@ public class Program3 extends AbstractProgram3 {
 
         return town;
     }
-
 
     public boolean verifySolution(TownPlan town) {
         int optimalResponseTime = town.getResponseTime();
